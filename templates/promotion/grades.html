@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Grades for {{ session.AcademicSession }} (Third Term Only)</h2>
+    <ul class="list-group">
+        {% for grade in grades %}
+        <li class="list-group-item">
+            <a href="{% url 'grade_students' grade.id %}">
+                {{ grade.Gradelevel }} {{ grade.Arm }}
+            </a>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No grades found for third term</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Broadsheet for {{ grade.Gradelevel }} {{ grade.Arm }}</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                {% for subject in subjects %}
+                <th>{{ subject.NameOfSubject }}</th>
+                {% endfor %}
+                <th>Total</th>
+                <th>Average</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in student_data %}
+            <tr>
+                <td>{{ data.student.FirstName }} {{ data.student.LastName }}</td>
+                {% for result in data.results %}
+                <td>{{ result }}</td>
+                {% endfor %}
+                <td>{{ data.total }}</td>
+                <td>{{ data.average }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

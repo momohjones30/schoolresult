@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Students in {{ grade.Gradelevel }} {{ grade.Arm }}</h2>
+    <form method="post" action="{% url 'new_session_selection' %}">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td><input type="checkbox" name="students" value="{{ student.id }}"></td>
+                    <td>{{ student.FirstName }} {{ student.LastName }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No students found in this grade</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Promote Selected Students</button>
+    </form>
+</div>
+{% endblock %}

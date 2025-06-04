@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Student Dashboard - {{ student.FirstName }} {{ student.LastName }}</h2>
+    <a href="{% url 'main_page' %}" class="btn btn-secondary mb-3">Back to homepage</a>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% else %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Your Academic Sessions</h3>
+            </div>
+            <div class="card-body">
+                {% if sessions %}
+                    <div class="list-group">
+                        {% for session in sessions %}
+                            <a href="{% url 'session_terms' session.id %}" class="list-group-item list-group-item-action">
+                                {{ session.AcademicSession }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No academic sessions found.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

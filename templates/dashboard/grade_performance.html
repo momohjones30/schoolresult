@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'session_terms' session_id=session_id %}">{{ grade.Term.Session.AcademicSession }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'term_grades' session_id=session_id term_id=term_id %}">{{ grade.Term.Term }}</a></li>
+            <li class="breadcrumb-item active">{{ grade.Gradelevel }} {{ grade.Arm }} Performance</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-chart-line text-primary"></i> 
+            {{ grade.Gradelevel }} {{ grade.Arm }} Performance
+            <small class="text-muted">{{ grade.Term.Term }}, {{ grade.Term.Session.AcademicSession }}</small>
+        </h2>
+        <a href="{% url 'term_grades' session_id=session_id term_id=term_id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Classes
+        </a>
+    </div>
+
+    <!-- Performance Summary -->
+    {% if performance_data %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-tachometer-alt"></i> Overall Performance</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-light mb-3">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted">Average Score</h6>
+                            <h3 class="text-primary">{{ summary.average|default:"0"|floatformat:1 }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light mb-3">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted">Best Subject</h6>
+                            <h3 class="text-success">
+                                {{ summary.best_subject.subject.NameOfSubject|default:"-" }} <br>
+                                <small>{{ summary.best_subject.total|default:"0" }} ({{ summary.best_subject.grade|default:"-" }})</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light mb-3">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted">Needs Improvement</h6>
+                            <h3 class="text-warning">
+                                {{ summary.weakest_subject.subject.NameOfSubject|default:"-" }} <br>
+                                <small>{{ summary.weakest_subject.total|default:"0" }} ({{ summary.weakest_subject.grade|default:"-" }})</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Results Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="fas fa-book-open"></i> Subject Results</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Subject</th>
+                            <th class="text-center">First CA</th>
+                            <th class="text-center">Second CA</th>
+                            <th class="text-center">Exam</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Grade</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in performance_data %}
+                        <tr>
+                            <td>
+                                <strong>{{ result.subject.NameOfSubject }}</strong><br>
+                                <small class="text-muted">{{ result.subject.teacher.get_full_name }}</small>
+                            </td>
+                            <td class="text-center">{{ result.first_ca|default:"-" }}</td>
+                            <td class="text-center">{{ result.second_ca|default:"-" }}</td>
+                            <td class="text-center">{{ result.exam|default:"-" }}</td>
+                            <td class="text-center font-weight-bold">{{ result.total|default:"-" }}</td>
+                            <td class="text-center">
+                                {% if result.total %}
+                                <span class="badge 
+                                    {% if result.grade == 'A' %}badge-success
+                                    {% elif result.grade == 'B' %}badge-primary
+                                    {% elif result.grade == 'C' %}badge-info
+                                    {% elif result.grade == 'D' %}badge-warning
+                                    {% else %}badge-danger{% endif %}">
+                                    {{ result.grade }}
+                                </span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#detailsModal{{ forloop.counter }}">
+                                    <i class="fas fa-search"></i> Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-circle"></i> No performance data available for this class.
+    </div>
+    {% endif %}
+
+    <!-- Download Button -->
+    {% if performance_data %}
+    <div class="container mt-4">
+        {% if performance_data %}
+        <div class="text-right mt-3">
+            <a href="{% url 'grade_performance' session_id=session_id term_id=term_id grade_id=grade_id %}?format=pdf" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
+            <a href="{% url 'grade_performance' session_id=session_id term_id=term_id grade_id=grade_id %}?format=excel" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </a>
+        </div>
+        {% else %}
+        {% endif %}
+    {% comment %} <div class="text-right mt-3">
+        <a href="#" class="btn btn-success">
+            <i class="fas fa-download"></i> Download Full Report
+        </a>
+    </div> {% endcomment %}
+    {% endif %}
+</div>
+
+<!-- Modals for Detailed Results -->
+{% for result in performance_data %}
+<div class="modal fade" id="detailsModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">{{ result.subject.NameOfSubject }} Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Teacher:</strong> {{ result.subject.teacher.get_full_name }}</p>
+                        <p><strong>Term:</strong> {{ grade.Term.Term }}</p>
+                        <p><strong>Session:</strong> {{ grade.Term.Session.AcademicSession }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>First CA:</strong> {{ result.first_ca|default:"-" }}</p>
+                        <p><strong>Second CA:</strong> {{ result.second_ca|default:"-" }}</p>
+                        <p><strong>Exam Score:</strong> {{ result.exam|default:"-" }}</p>
+                        <p><strong>Total:</strong> <span class="font-weight-bold">{{ result.total|default:"-" }}</span></p>
+                    </div>
+                </div>
+                {% if result.total %}
+                <div class="progress mt-3">
+                    <div class="progress-bar 
+                        {% if result.grade == 'A' %}bg-success
+                        {% elif result.grade == 'B' %}bg-primary
+                        {% elif result.grade == 'C' %}bg-info
+                        {% elif result.grade == 'D' %}bg-warning
+                        {% else %}bg-danger{% endif %}" 
+                        role="progressbar" 
+                        style="width: {{ result.total }}%" 
+                        aria-valuenow="{{ result.total }}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100">
+                        {{ result.total }}%
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .table th {
+        white-space: nowrap;
+    }
+    .badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+    .progress {
+        height: 20px;
+        border-radius: 4px;
+    }
+    .progress-bar {
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+

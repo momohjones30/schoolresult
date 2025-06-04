@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<head>
+    <title>Sessions</title>
+</head>
+<body>
+    <h1>Sessions</h1>
+    <ul>
+        {% for session in sessions %}
+            <li>
+                <a href="{% url 'terms' session.id %}">{{ session.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+
+{% endblock content %}

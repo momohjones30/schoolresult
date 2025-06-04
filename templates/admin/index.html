@@ -1,0 +1,95 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<head>
+    <title>Staff Admin Session</title>
+</head>
+
+
+<!-- Display Sessions -->
+{% if sessions %}
+<body>
+    {% if sessions %}
+
+    <h1>Academic Sessions</h1>
+    <ul>
+        {% for session in sessions %}
+            <li>
+                {% comment %} <a href="{% url 'terms' session.id %}">{{ session.AcademicSession }}</a> {% endcomment %}
+                <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}">{{ session.AcademicSession }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <h1>No Academic sessions registered</h1>
+    {% endif %}
+
+</body>
+
+
+{% endif %}
+
+<!-- Display Terms -->
+
+{% if terms %}
+<body>
+    {% if terms %}
+
+    <h2>Terms for {{ sessionss.AcademicSession }} session</h2>
+    <ul>
+        {% for term in terms %}
+            <li>
+                <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}">{{term.Term}}</a>
+
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h2>No term has been registered for this academic session</h2>
+    {% endif %}
+
+</body>
+
+{% endif %}
+
+
+{% if grades %}
+<body>
+
+<!-- Display Grades -->
+<h2>Grades for {{ termss.Term }} of {{ sessionss.AcademicSession }}</h2>
+<ul>
+    {% for grade in grades %}
+        <li>
+            {% comment %} <a href="{% url 'grades' term.id grade.id %}">{{ grade.GradeLevel }}</a> {% endcomment %}
+            <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}">{{grade.Gradelevel}} {{grade.Arm}}</a>
+
+        </li>
+    {% endfor %}
+</ul>
+</body>
+
+{% endif %}
+
+
+
+{% if subjects %}
+<body>
+
+<!-- Display subjects -->
+<h2>Subjects for {{ grade.GradeLevel }} of {{ termss.Term }} of {{ sessionss.AcademicSession }}</h2>
+<ul>
+    {% for subject in subjects %}
+        <li>
+            {% comment %} <a href="{% url 'grades' term.id grade.id %}">{{ grade.GradeLevel }}</a> {% endcomment %}
+            <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}&subject_id={{subject.id}}">{{subject.NameOfSubject}}</a>
+
+        </li>
+    {% endfor %}
+</ul>
+</body>
+
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,116 @@
+{% comment %} STUDENT REGISTRATION PAGE {% endcomment %}
+{% load static %}
+
+{% load crispy_forms_tags %}
+    <h1>Register</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <ul class="errorlist">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|capfirst }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %} {% crispy form %}
+        {% comment %} {{ form.as_p}} {% endcomment %}
+        <button type="submit">Register</button>
+    </form>
+
+
+{% comment %}     
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        .errorlist {
+            color: red;
+            list-style-type: none; /* Remove bullet points */
+            padding: 0;
+        }
+        
+        .errorlist li {
+            margin-bottom: 5px;
+        }
+        /* Background setup */
+        body {
+            background: url('https://source.unsplash.com/random/1600x900/?nature,abstract') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Glass effect container */
+        .glass-container {
+            background: rgba(211, 62, 62, 0.89);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0px 4px 10px rgba(88, 103, 233, 0.75);
+            text-align: center;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        /* Custom form input styles */
+        .form-control {
+            background: rgba(71, 110, 238, 0.3);
+            border: none;
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(71, 110, 238, 0.3);
+        }
+
+        .btn-primary {
+            background: rgba(0, 123, 255, 0.7);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 123, 255, 1);
+        }
+
+        /* Make form text white */
+        label {
+            color: white;
+        }
+    </style>
+</head>
+ <body>
+
+    <div class="glass-container">
+        <h2>Register</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter username" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_password1">Password</label>
+                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Enter password" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_password2">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+    </div>
+
+</body> 
+</html> {% endcomment %}

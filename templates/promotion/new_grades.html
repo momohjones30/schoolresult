@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Select Destination Grades for {{ session.AcademicSession }}</h2>
+    <form method="post" action="{% url 'promote_students' %}">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Grade</th>
+                    <th>Term</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grade in grades %}
+                <tr>
+                    <td><input type="checkbox" name="new_grades" value="{{ grade.id }}"></td>
+                    <td>{{ grade.Gradelevel }} {{ grade.Arm }}</td>
+                    <td>{{ grade.Term.Term }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No grades found for this session</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success">Promote Students to Selected Grades</button>
+    </form>
+</div>
+{% endblock %}

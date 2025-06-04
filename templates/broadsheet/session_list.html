@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Academic Sessions</h1>
+<ul>
+    {% for session in sessions %}
+    <li><a href="{% url 'term_list' session.id %}">{{ session.AcademicSession }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

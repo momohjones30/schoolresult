@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<head>
+    <title>student Portal</title>
+</head>
+
+
+<!-- Display Sessions -->
+{% if sessions %}
+<body>
+    <h1>Select academic session</h1>
+    <ul>
+        {% for session in sessions %}
+            <li>
+                {% comment %} <a href="{% url 'terms' session.id %}">{{ session.AcademicSession }}</a> {% endcomment %}
+                <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}">{{ session.AcademicSession }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+{% endif %}
+
+<!-- Display Terms -->
+
+{% if terms %}
+<body>
+
+    <h2>Select the term for {{ sessionss.AcademicSession }} session</h2>
+    <ul>
+        {% for term in terms %}
+            <li>
+                {% comment %} <a href="{% url 'grades' term.id %}">{{ term.Term }}</a> {% endcomment %}
+                {% comment %} <a href="{% url 'grades' session.id term.id %}">{{ term.Term }}</a> {% endcomment %}
+                <a href="?session_id={{ session.id }}&term_id={{ term.id }}&grade_id={{ grade.id }}">{{term.Term}}</a>
+
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+
+{% endif %}
+
+
+{% endblock content %}

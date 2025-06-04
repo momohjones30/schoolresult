@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Sessions</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Sessions for {{ subject.NameOfSubject }}</h2>
+    
+    <div class="list-group">
+        {% for session in sessions %}
+        <a href="{% url 'session_terms' subject_id=subject.id session_id=session.id %}" 
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ session.AcademicSession }}</span>
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% empty %}
+        <div class="alert alert-info">No sessions available for this subject.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

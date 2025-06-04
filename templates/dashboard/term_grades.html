@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'session_terms' session_id=session_id %}">{{session.AcademicSession}}</a></li>
+            <li class="breadcrumb-item active">{{ term.Term }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            
+                <i class="fas fa-calendar-alt"></i> {{ student.FirstName }} {{ student.LastName }}'s Academic Progress
+                <br>
+    
+            <i class="fas fa-graduation-cap"></i> {{ term.Term }} Grades
+            <small class="text-muted">{{ session.AcademicSession }}</small>
+        </h2>
+        <a href="{% url 'session_terms' session_id=session_id %}" class="btn btn-outline-secondary">
+            
+            <i class="fas fa-arrow-left"></i> Back to Terms
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="fas fa-layer-group"></i> Your Class in {{session.AcademicSession}} session
+            </h3>
+        </div>
+        
+        <div class="card-body">
+            {% if grades %}
+                <div class="row">
+                    {% for grade in grades %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 grade-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title mb-1">
+                                                {{ grade.Gradelevel }} {{ grade.Arm }}
+                                            </h5>
+                                            <p class="text-muted small mb-2">
+                                                <i class="fas fa-user-tie"></i> {{ grade.teacher.get_full_name|default:"Teacher" }}
+                                            </p>
+                                        </div>
+                                        <span class="badge badge-info">
+                                            {{ grade.student_set.count }} Students
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="progress mt-3" style="height: 8px;">
+                                        <div class="progress-bar bg-success" 
+                                             role="progressbar" 
+                                             style="width: {{ grade.get_completion_percentage }}%"
+                                             aria-valuenow="{{ grade.get_completion_percentage }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Term Progress: {{ grade.get_completion_percentage }}%</small>
+                                </div>
+                                
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <a href="{% url 'grade_performance' session_id=session_id term_id=term.id grade_id=grade.id %}" 
+                                       class="btn btn-sm btn-block btn-outline-primary">
+                                        View Performance <i class="fas fa-chart-line ml-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> You are not enrolled in any classes for this term.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .grade-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .grade-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .progress {
+        border-radius: 4px;
+        background-color: #f0f0f0;
+    }
+    
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

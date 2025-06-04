@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'subject_sessions' subject_id=subject.id %}">Sessions</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'session_terms' subject_id=subject.id session_id=session.id %}">Terms</a></li>
+            <li class="breadcrumb-item active">Grades</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Grades for {{ term.Term }}</h2>
+    
+    <div class="list-group">
+        {% for grade in grades %}
+        <a href="{% url 'grade_scores' subject_id=subject.id session_id=session.id term_id=term.id grade_id=grade.id %}" 
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ grade.Gradelevel }} {{ grade.Arm }}</span>
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% empty %}
+        <div class="alert alert-info">No grades available for this term.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

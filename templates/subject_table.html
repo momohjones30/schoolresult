@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ subject.name }}</title>
+    <style>
+        table { width: 60%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h2>{{ subject.name }} - {{ subject.grade.name }}</h2>
+    <table>
+        <tr>
+            <th>Name of Student</th>
+            <th>First CA</th>
+            <th>Second CA</th>
+            <th>Exam</th>
+            <th>Total</th>
+        </tr>
+        {% for score in scores %}
+        <tr>
+            <td>{{ score.student.name }}</td>
+            <td>{{ score.first_ca }}</td>
+            <td>{{ score.second_ca }}</td>
+            <td>{{ score.exam }}</td>
+            <td>{{ score.total }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

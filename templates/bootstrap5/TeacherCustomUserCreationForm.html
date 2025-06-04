@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher User register form</title>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #87CEEB, #A6B1E1);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px; /* Add padding to prevent form from touching edges */
+        }
+
+        /* Form container styling */
+        form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh; /* Limit height to 90% of viewport height */
+            overflow-y: auto; /* Add scroll if content exceeds height */
+        }
+
+        /* Input field styling */
+        form p {
+            margin-bottom: 1rem; /* Reduce margin for compactness */
+        }
+
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 8px; /* Slightly reduce padding */
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px; /* Slightly smaller font size */
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+
+        form input:focus, form select:focus, form textarea:focus {
+            border-color: #87CEEB;
+            outline: none;
+            box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+        }
+
+        /* Button styling */
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #87CEEB;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #6CA6CD;
+        }
+
+        /* Error message styling */
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0; /* Reduce margin for compactness */
+            color: #ff6b6b;
+            background-color: #ffe6e6;
+            border: 1px solid #ff6b6b;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .errorlist li {
+            margin: 5px 0;
+        }
+
+        /* Label styling */
+        form label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <ul class="errorlist">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|capfirst }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
+

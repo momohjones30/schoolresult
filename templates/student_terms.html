@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Terms</title>
+</head>
+<body>
+    <h1>Terms for {{ session.AcademicSession }}</h1>
+    <ul>
+        {% for term in terms %}
+            <li><a href="{% url 'student_grades' term.id %}">{{ term.Term }}</a></li>
+        {% empty %}
+            <li>No terms found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

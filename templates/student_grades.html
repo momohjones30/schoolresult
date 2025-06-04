@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Grades</title>
+</head>
+<body>
+    <h1>Grades for {{ term.Term }} of {{ term.Session.AcademicSession }}</h1>
+    <ul>
+        {% for grade in grades %}
+            <li><a href="{% url 'student_results' grade.id %}">{{ grade.Gradelevel }} {{ grade.Arm }}</a></li>
+        {% empty %}
+            <li>No grades found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

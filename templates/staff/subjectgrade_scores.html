@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'subject_sessions' subject_id=subject.id %}">Sessions</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'session_terms' subject_id=subject.id session_id=session.id %}">Terms</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'term_grades' subject_id=subject.id session_id=session.id term_id=term.id %}">Grades</a></li>
+            <li class="breadcrumb-item active">Scores</li>
+        </ol>
+    </nav>
+
+    {% comment %} <h2 class="mb-4">Scores for {{ subject.NameOfSubject }} - {{ grade.Gradelevel }} {{ grade.Arm }}, {{ term.Term }} of {{ session.AcademicSession }}</h2> {% endcomment %}
+    <h2 class="mb-4">Scores for {{ subject.NameOfSubject }} - {{ grade }}</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="scores-table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>First CA (15%)</th>
+                    <th>Second CA (15%)</th>
+                    <th>Exam (70%)</th>
+                    <th>Total (100%)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr data-result-id="{{ result.id }}">
+                    <td data-student-id="{{ result.student.id }}">{{ result.student }}</td>
+                    <td>
+                        <input type="number" class="form-control first-ca" 
+                               value="{{ result.first_ca }}" min="0" max="15" step="0.5">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control second-ca" 
+                               value="{{ result.second_ca }}" min="0" max="15" step="0.5">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control exam" 
+                               value="{{ result.exam }}" min="0" max="70" step="0.5">
+                    </td>
+                    <td class="total">{{ result.total|floatformat:1 }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm save-row">Save</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <button id="save-all" class="btn btn-success mt-3">Save All Scores</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate totals when scores change
+    document.querySelectorAll('.first-ca, .second-ca, .exam').forEach(input => {
+        input.addEventListener('input', function() {
+            const row = this.closest('tr');
+            const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+            const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+            const exam = parseFloat(row.querySelector('.exam').value) || 0;
+            const total = firstCA + secondCA + exam;
+            row.querySelector('.total').textContent = total.toFixed(1);
+        });
+    });
+
+    // Save single row
+    document.querySelectorAll('.save-row').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            saveRow(row);
+        });
+    });
+
+    // Save all rows
+    document.getElementById('save-all').addEventListener('click', function() {
+        const rows = document.querySelectorAll('#scores-table tbody tr');
+        const data = [];
+        
+        rows.forEach(row => {
+            const resultId = row.getAttribute('data-result-id');
+            const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+            const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+            const exam = parseFloat(row.querySelector('.exam').value) || 0;
+            
+            data.push({
+                result_id: resultId,
+                first_ca: firstCA,
+                second_ca: secondCA,
+                exam: exam
+            });
+        });
+
+        fetch('{% url "save_scores" %}', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            
+         
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                data.results.forEach(updatedResult => {
+                    const row = document.querySelector(`tr[data-result-id="${updatedResult.result_id}"]`);
+                    if (row) {
+                        row.querySelector('.total').textContent = parseFloat(updatedResult.total).toFixed(1);
+                    }
+                });
+                alert('All scores saved successfully!');
+            } else {
+                alert('Error saving scores: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error saving scores: ' + error);
+        });
+    });
+
+  
+
+    function saveRow(row) {
+        const resultId = row.getAttribute('data-result-id');
+        const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+        const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+        const exam = parseFloat(row.querySelector('.exam').value) || 0;
+       
+        const data = {
+            result_id: resultId,
+            first_ca: firstCA,
+            second_ca: secondCA,
+            exam: exam
+        };
+
+        return fetch('{% url "save_scores" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify([data])
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update the total with the server-calculated value
+                const updatedResult = data.results.find(r => r.result_id == resultId);
+                if (updatedResult) {
+                    row.querySelector('.total').textContent = parseFloat(updatedResult.total).toFixed(1);
+                }
+                alert('Score saved successfully!');
+            } else {
+                alert('Error saving score: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error saving score: ' + error);
+        });
+    }
+
+
+});
+</script>
+{% endblock %}
+
+{% comment %} {% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'subject_sessions' subject_id=subject.id %}">Sessions</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'session_terms' subject_id=subject.id session_id=session.id %}">Terms</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'term_grades' subject_id=subject.id session_id=session.id term_id=term.id %}">Grades</a></li>
+            <li class="breadcrumb-item active">Scores</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Scores for {{ subject.NameOfSubject }} - {{ grade.Gradelevel }} {{ grade.Arm }}, {{ term.Term }} of {{ session.AcademicSession }}</h2>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="scores-table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>First CA (15%)</th>
+                    <th>Second CA (15%)</th>
+                    <th>Exam (70%)</th>
+                    <th>Total (100%)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for result in results %}
+                <tr data-result-id="{{ result.id }}">
+                    <td data-student-id="{{ result.student.id }}">{{ result.student }}</td>
+                    <td>
+                        <input type="number" class="form-control first-ca" 
+                               value="{{ result.first_ca }}" min="0" max="15" step="0.5">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control second-ca" 
+                               value="{{ result.second_ca }}" min="0" max="15" step="0.5">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control exam" 
+                               value="{{ result.exam }}" min="0" max="70" step="0.5">
+                    </td>
+                    <td class="total">{{ result.total }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm save-row">Save</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <button id="save-all" class="btn btn-success mt-3">Save All Scores</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate totals when scores change
+    document.querySelectorAll('.first-ca, .second-ca, .exam').forEach(input => {
+        input.addEventListener('input', function() {
+            const row = this.closest('tr');
+            const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+            const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+            const exam = parseFloat(row.querySelector('.exam').value) || 0;
+            const total = firstCA + secondCA + exam;
+            row.querySelector('.total').textContent = total.toFixed(1);
+        });
+    });
+
+    // Save single row
+    document.querySelectorAll('.save-row').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            saveRow(row);
+        });
+    });
+
+    // Save all rows
+    document.getElementById('save-all').addEventListener('click', function() {
+        const rows = document.querySelectorAll('#scores-table tbody tr');
+        const promises = [];
+        
+        rows.forEach(row => {
+            promises.push(saveRow(row));
+        });
+
+        Promise.all(promises).then(() => {
+            alert('All scores saved successfully!');
+        });
+    });
+
+  
+
+     function saveRow(row) {
+        const resultId = row.getAttribute('data-result-id');
+        const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+        const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+        const exam = parseFloat(row.querySelector('.exam').value) || 0;
+       
+        const data = {
+            result_id: resultId,
+            subject_id: {{ subject.id }},
+            grade_id: {{ grade.id }},
+            term_id: {{ term.id }},
+            session_id: {{ session.id }},
+            student_id: {{ results.0.student.id }},  // Assuming all students are from the same grade
+            first_ca: firstCA,
+            second_ca: secondCA,
+            exam: exam
+        };
+
+        return fetch('{% url "save_scores" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify([data])
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update the total with the server-calculated value
+                const updatedResult = data.results.find(r => r.result_id == resultId);
+                if (updatedResult) {
+                    row.querySelector('.total').textContent = parseFloat(updatedResult.total).toFixed(1);
+                }
+                alert('Score saved successfully!');
+            } else {
+                alert('Error saving score: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error saving score: ' + error);
+        });
+    }
+
+        // In your "Save All" button handler:
+document.getElementById('save-all').addEventListener('click', function() {
+    const rows = document.querySelectorAll('#scores-table tbody tr');
+    const data = [];
+    
+    rows.forEach(row => {
+        const resultId = row.getAttribute('data-result-id');
+        const studentId = row.querySelector('td:first-child').getAttribute('data-student-id');
+        const firstCA = parseFloat(row.querySelector('.first-ca').value) || 0;
+        const secondCA = parseFloat(row.querySelector('.second-ca').value) || 0;
+        const exam = parseFloat(row.querySelector('.exam').value) || 0;
+        
+        data.push({
+            result_id: resultId,
+            subject_id: {{ subject.id }},
+            grade_id: {{ grade.id }},
+            term_id: {{ term.id }},
+            session_id: {{ session.id }},
+            student_id: studentId,
+            first_ca: firstCA,
+            second_ca: secondCA,
+            exam: exam
+        });
+    });
+
+    fetch('{% url "save_scores" %}', {
+        method: 'POST',
+        headers: {
+           'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'     
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            data.results.forEach(updatedResult => {
+                const row = document.querySelector(`tr[data-result-id="${updatedResult.result_id}"]`);
+                if (row) {
+                    row.querySelector('.total').textContent = parseFloat(updatedResult.total).toFixed(1);
+                }
+            });
+            alert('All scores saved successfully!');
+        } else {
+            alert('Error saving scores: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error saving scores: ' + error);
+    });
+});
+
+});
+</script>
+{% endblock %} {% endcomment %}

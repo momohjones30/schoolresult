@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects for {{ grade.Gradelevel }} {{ grade.Arm }} of {{ grade.Term }}</title>
+</head>
+<body>
+    <h1>Assigned Subjects for {{ grade.Gradelevel }} {{ grade.Arm }} of {{ grade.Term }}</h1>
+    <ul>
+        {% for subject in subjects %}
+        <a href="{% url 'subjectgrade_scores' grade.id %}">
+        <li>{{ subject.NameOfSubject }} for {{ grade.Gradelevel }} {{ grade.Arm }} of {{ grade.Term.Session.AcademicSession }} {{ grade.Term.Term }}</li>
+        </a>
+        {% empty %}
+            <li>You are not assigned to handle any subject for this grade.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
